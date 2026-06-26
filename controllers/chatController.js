@@ -7,7 +7,6 @@ const getKnowledgeFromDB = async (topic, tableName = 'chatbot_qna_bank') => {
         let sql = `SELECT question, answer FROM ${tableName}`;
         let params = [];
 
-        // Nếu AI đoán được topic, lấy data theo topic đó. Nếu không (ALL), lấy toàn bộ data.
         if (topic && topic !== "ALL") {
             sql += " WHERE topic LIKE ?";
             params.push(`%${topic}%`);
@@ -38,13 +37,12 @@ const chat = async (req, res) => {
             Nhiệm vụ của bạn là phân tích câu hỏi của User để tìm ra CHỦ ĐỀ tương ứng dựa trên dữ liệu cá nhân của Nguyễn Hùng Vĩ.
             Các chủ đề hợp lệ bao gồm: "Thông tin cá nhân", "Tình cảm", "Sở thích", "Cuộc sống", "Chuyên môn", "Kinh nghiệm", "Làm việc nhóm", "Kỹ năng mềm", "Công cụ", "Tài lẻ", "Mục tiêu", "Liên hệ".
             
-            Nếu câu hỏi là các câu chào hỏi lịch sự (ví dụ: "chào", "hello", "hi", "xin chào", "có ai ở đó không", v.v.), trả về intent "GREETING".
             Nếu câu hỏi hỏi về phòng trống, doanh thu, hay các thứ không liên quan, trả về intent "UNKNOWN".
             
             Trả về MỘT OBJECT JSON duy nhất, KHÔNG giải thích, KHÔNG markdown:
             {
-                "intent": "VALID_QUESTION", "GREETING" hoặc "UNKNOWN",
-                "topic": "Tên_Chủ_Đề" (Nếu intent là VALID_QUESTION, hãy phân loại vào 1 trong các chủ đề trên. Nếu câu hỏi chung chung thì để "ALL", nếu GREETING hoặc UNKNOWN thì để trống)
+                "intent": "VALID_QUESTION" hoặc "UNKNOWN",
+                "topic": "Tên_Chủ_Đề" (Nếu intent là VALID_QUESTION, hãy phân loại vào 1 trong các chủ đề trên. Nếu câu hỏi chung chung thì để "ALL")
             }
             User: "${prompt}"
         `;
@@ -62,14 +60,6 @@ const chat = async (req, res) => {
         // ==========================================
         // BƯỚC 2: XỬ LÝ THEO INTENT & LẤY DỮ LIỆU
         // ==========================================
-        if (aiIntent.intent === "GREETING") {
-            return res.status(200).json({
-                message: "Thành công",
-                topic_detected: "Greeting",
-                data: "Chào bạn! Mình là AI đại diện cho Nguyễn Hùng Vĩ. Mình có thể giúp gì cho bạn hôm nay?"
-            });
-        }
-
         if (aiIntent.intent === "UNKNOWN") {
             return res.status(200).json({
                 message: "Xử lý thành công",
